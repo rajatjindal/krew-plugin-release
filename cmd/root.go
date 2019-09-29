@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/rajatjindal/krew-plugin-release-go/pkg/actions"
 	"github.com/spf13/cobra"
 )
 
@@ -13,7 +14,7 @@ var rootCmd = &cobra.Command{
 	Short: "tool to make PR to krew-plugin-release",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("from inside golang")
-		fmt.Println(os.Environ())
+		fmt.Println(actions.GetPayload())
 	},
 }
 
