@@ -13,6 +13,7 @@ var rootCmd = &cobra.Command{
 	Short: "tool to make PR to krew-plugin-release",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("from inside golang")
+		fmt.Println(os.Environ())
 	},
 }
 
