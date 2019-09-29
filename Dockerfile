@@ -1,8 +1,10 @@
 # Container image that runs your code
-FROM alpine:3.10
+FROM golang:1.12
 
-# Copies your code file from your action repository to the filesystem path `/` of the container
-COPY entrypoint.sh /entrypoint.sh
+WORKDIR /go/src/github.com/rajatjindal/krew-plugin-release-go
 
-# Code file to execute when the docker container starts up (`entrypoint.sh`)
-ENTRYPOINT ["/entrypoint.sh"]
+COPY . .
+
+RUN go build -o bin/krew-plugin-release-go main.go
+
+ENTRYPOINT [ "/go/src/github.com/rajatjindal/krew-plugin-release-go/bin/krew-plugin-release-go" ]
