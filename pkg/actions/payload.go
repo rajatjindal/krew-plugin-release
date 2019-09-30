@@ -10,7 +10,7 @@ func GetPayload() (string, error) {
 	eventJSONPath := os.Getenv("GITHUB_EVENT_PATH")
 	data, err := ioutil.ReadFile(eventJSONPath)
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 
 	return string(data), nil
