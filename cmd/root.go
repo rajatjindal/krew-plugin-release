@@ -15,7 +15,7 @@ var rootCmd = &cobra.Command{
 	Short: "tool to make PR to krew-plugin-release",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("from inside golang")
-		err := actions.GetReleaseInfo()
+		_, err := actions.GetReleaseInfo()
 		if err != nil {
 			logrus.Fatal(err)
 		}
