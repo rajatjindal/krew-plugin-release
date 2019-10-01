@@ -49,6 +49,9 @@ func GetReleaseInfo() (*ReleaseInfo, error) {
 	client := resty.New()
 	for _, releaseAsset := range event.Release.Assets {
 		_, err = getAssetInfo(client, releaseAsset)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	logrus.Info(event)
