@@ -24,6 +24,6 @@ func GetReleaseInfo() error {
 		return fmt.Errorf("invalid event data")
 	}
 
-	logrus.Info(event.Release.Assets)
+	logrus.Info(event)
 	return nil
 }
