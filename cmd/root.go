@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/rajatjindal/krew-plugin-release-go/pkg/actions"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -14,7 +15,10 @@ var rootCmd = &cobra.Command{
 	Short: "tool to make PR to krew-plugin-release",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("from inside golang")
-		fmt.Println(actions.GetPayload())
+		err := actions.GetReleaseInfo()
+		if err != nil {
+			logrus.Fatal(err)
+		}
 	},
 }
 
