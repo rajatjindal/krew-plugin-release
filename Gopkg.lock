@@ -2,6 +2,22 @@
 
 
 [[projects]]
+  digest = "1:91099c6f78b1e7bdf9ed06eb4cb7f017174293a3689d76b995a06f4c8d64a7f0"
+  name = "github.com/google/go-github"
+  packages = ["github"]
+  pruneopts = "UT"
+  revision = "9686ff0746200cf521ce225525b421e13b4eac1a"
+  version = "v28.1.1"
+
+[[projects]]
+  digest = "1:a63cff6b5d8b95638bfe300385d93b2a6d9d687734b863da8e09dc834510a690"
+  name = "github.com/google/go-querystring"
+  packages = ["query"]
+  pruneopts = "UT"
+  revision = "44c6ddd0a2342c386950e880b658017258da92fc"
+  version = "v1.0.0"
+
+[[projects]]
   digest = "1:870d441fe217b8e689d7949fef6e43efbc787e50f200cb1e70dbca9204a1d6be"
   name = "github.com/inconshreveable/mousetrap"
   packages = ["."]
@@ -10,44 +26,12 @@
   version = "v1.0"
 
 [[projects]]
-  digest = "1:ee74846a22fac181cfbe3e8427bafc0a8083114828c9fd681e9b84a57d243e78"
-  name = "github.com/influxdata/influxdb-client-go"
-  packages = [
-    ".",
-    "internal/ast",
-    "internal/gzip",
-  ]
-  pruneopts = "UT"
-  revision = "7eca16a8ddcb356254e7e5430d724c7d598f848a"
-  version = "v0.1.0"
-
-[[projects]]
-  branch = "master"
-  digest = "1:0b819a6061d2621ca30433c4c8aa89b3a4da6e6cafd109e5ec625d594e120d7f"
-  name = "github.com/influxdata/line-protocol"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "5712a8124a9aad1fe4f630c2f63588e94cf817c8"
-
-[[projects]]
   digest = "1:31e761d97c76151dde79e9d28964a812c46efc5baee4085b86f68f0c654450de"
   name = "github.com/konsorten/go-windows-terminal-sequences"
   packages = ["."]
   pruneopts = "UT"
   revision = "f55edac94c9bbba5d6182a4be46d86a2c9b5b50e"
   version = "v1.0.2"
-
-[[projects]]
-  branch = "master"
-  digest = "1:ec47dd9956f2a5f2ae66e79dcf12960d966dc0b641c8f876657fd28af04d3df7"
-  name = "github.com/rajatjindal/gfi-analytics-client"
-  packages = [
-    "cmd",
-    "pkg/analytics",
-    "pkg/store",
-  ]
-  pruneopts = "UT"
-  revision = "cf018784c7e98962febfd336c58ced19f51841d4"
 
 [[projects]]
   digest = "1:04457f9f6f3ffc5fea48e71d62f2ca256637dee0a04d710288e27e05c8b41976"
@@ -75,6 +59,22 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:50804d40964a0c59170e827824e79bbf810cc10ae57603d8facce8a1f48f9a83"
+  name = "golang.org/x/crypto"
+  packages = [
+    "cast5",
+    "openpgp",
+    "openpgp/armor",
+    "openpgp/elgamal",
+    "openpgp/errors",
+    "openpgp/packet",
+    "openpgp/s2k",
+  ]
+  pruneopts = "UT"
+  revision = "88343688bb370571259f1a6c98274757b61e3bb1"
+
+[[projects]]
+  branch = "master"
   digest = "1:1b90e63244513e8514749f45da58e89350d35cb3e12416ce6ed95f41c2a1f177"
   name = "golang.org/x/sys"
   packages = ["unix"]
@@ -85,7 +85,8 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
-    "github.com/rajatjindal/gfi-analytics-client/cmd",
+    "github.com/google/go-github/github",
+    "github.com/sirupsen/logrus",
     "github.com/spf13/cobra",
   ]
   solver-name = "gps-cdcl"

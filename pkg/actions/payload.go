@@ -6,12 +6,12 @@ import (
 )
 
 //GetPayload reads payload and returns it
-func GetPayload() (string, error) {
+func GetPayload() ([]byte, error) {
 	eventJSONPath := os.Getenv("GITHUB_EVENT_PATH")
 	data, err := ioutil.ReadFile(eventJSONPath)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return string(data), nil
+	return data, nil
 }
