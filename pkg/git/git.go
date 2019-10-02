@@ -13,6 +13,10 @@ import (
 
 //Clone clones the repo
 func Clone(origin, branch, dir string) error {
+	if len(os.Getenv("GITHUB_SSH_KEY")) == 0 {
+		return fmt.Errorf("env GITHUB_SSH_KEY not found")
+	}
+
 	signer, _ := ssh.ParsePrivateKey([]byte(os.Getenv("GITHUB_SSH_KEY")))
 	auth := &gitssh.PublicKeys{
 		User:   "git",
@@ -37,5 +41,13 @@ func Clone(origin, branch, dir string) error {
 		return err
 	}
 
+	return nil
+}
+
+func CreateBranch(dir, branchName string) error {
+	return nil
+}
+
+func CommitAndPush(dir, origin string) error {
 	return nil
 }
