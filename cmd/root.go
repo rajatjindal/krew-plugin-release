@@ -2,9 +2,11 @@ package cmd
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 
 	"github.com/rajatjindal/krew-plugin-release/pkg/actions"
+	"github.com/rajatjindal/krew-plugin-release/pkg/git"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -26,6 +28,16 @@ var rootCmd = &cobra.Command{
 		}
 
 		logrus.Infof("repo %s/%s exists? %t", "rajatjindal", "random-repo", exists)
+
+		dir, err := ioutil.TempDir("", "krew-index-")
+		if err != nil {
+			logrus.Fatal(err)
+		}
+
+		err = git.Clone("git@github.com:rajatjindal/krew-plugin-release.git", "master", dir)
+		if err != nil {
+			logrus.Fatal(err)
+		}
 	},
 }
 
