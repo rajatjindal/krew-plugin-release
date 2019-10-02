@@ -51,3 +51,7 @@ func CreateBranch(dir, branchName string) error {
 func CommitAndPush(dir, origin string) error {
 	return nil
 }
+
+func GetMasterBranchRefs() string {
+	return string(plumbing.Master)
+}

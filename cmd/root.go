@@ -34,7 +34,7 @@ var rootCmd = &cobra.Command{
 			logrus.Fatal(err)
 		}
 
-		err = git.Clone("git@github.com:rajatjindal/krew-index.git", "refs/master", dir)
+		err = git.Clone("git@github.com:rajatjindal/krew-index.git", git.GetMasterBranchRefs(), dir)
 		if err != nil {
 			logrus.Fatal(err)
 		}
