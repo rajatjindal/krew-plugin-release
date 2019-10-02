@@ -7,6 +7,7 @@ import (
 	ssh "golang.org/x/crypto/ssh"
 	ugit "gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/plumbing"
+	githttp "gopkg.in/src-d/go-git.v4/plumbing/transport/http"
 	gitssh "gopkg.in/src-d/go-git.v4/plumbing/transport/ssh"
 )
 
@@ -31,9 +32,8 @@ func Clone(origin, branch, dir string) error {
 		Progress:      os.Stdout,
 		ReferenceName: plumbing.ReferenceName(branch),
 		SingleBranch:  true,
-		Auth: &gitssh.Password{
-			User:     "rjindal",
-			Password: os.Getenv("GITHUB_TOKEN"),
+		Auth: &githttp.TokenAuth{
+			Token: os.Getenv("GITHUB_TOKEN"),
 		},
 	})
 
