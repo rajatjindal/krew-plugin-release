@@ -34,7 +34,7 @@ var rootCmd = &cobra.Command{
 			logrus.Fatal(err)
 		}
 
-		err = git.Clone("https://github.com/rajatjindal/krew-plugin-release.git", "master", dir)
+		err = git.Clone("https://github.com/rajatjindal/krew-index.git", "master", dir)
 		if err != nil {
 			logrus.Fatal(err)
 		}
