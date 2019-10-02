@@ -80,7 +80,7 @@ func getAssetInfo(client *resty.Client, releaseAsset github.ReleaseAsset) (*Asse
 	}
 
 	platformOS, platformArch, err := getPlatformInfo(releaseAsset.GetBrowserDownloadURL())
-	logrus.Infof("platformOS: %s, platformArch: %s, sha256: %s", platformOS, platformArch, sha256)
+	logrus.Infof("platformOS: %s, platformArch: %s, sha256: %s", platformOS, platformArch, string(sha256))
 	return nil, nil
 }
 
