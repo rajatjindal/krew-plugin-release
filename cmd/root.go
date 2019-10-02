@@ -19,6 +19,13 @@ var rootCmd = &cobra.Command{
 		if err != nil {
 			logrus.Fatal(err)
 		}
+
+		exists, err := actions.RepoExists("rajatjindal", "random-repo")
+		if err != nil {
+			logrus.Fatal(err)
+		}
+
+		logrus.Infof("repo %s/%s exists? %t", "rajatjindal", "random-repo", exists)
 	},
 }
 
