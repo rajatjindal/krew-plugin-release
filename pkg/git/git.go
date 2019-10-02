@@ -26,17 +26,15 @@ func GetAuthKeys(key string) (*gitssh.PublicKeys, error) {
 
 //Clone clones the repo
 func Clone(origin, branch, dir string) error {
-	authKeys, err := GetAuthKeys("")
-	if err != nil {
-		return err
-	}
-
-	_, err = ugit.PlainClone(dir, false, &ugit.CloneOptions{
+	_, err := ugit.PlainClone(dir, false, &ugit.CloneOptions{
 		URL:           origin,
 		Progress:      os.Stdout,
 		ReferenceName: plumbing.ReferenceName(branch),
 		SingleBranch:  true,
-		Auth:          authKeys,
+		Auth: &gitssh.Password{
+			User:     "rjindal",
+			Password: os.Getenv("GITHUB_TOKEN"),
+		},
 	})
 
 	if err != nil {
