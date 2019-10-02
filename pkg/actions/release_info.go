@@ -112,19 +112,19 @@ func getPlatformInfo(u string) (string, string, error) {
 	platformArch := ""
 
 	switch {
-	case strings.Contains(u, "darwin"):
+	case strings.Contains(strings.ToLower(u), "darwin"):
 		platformOS = "darwin"
-	case strings.Contains(u, "linux"):
-		platformOS = "linux"
-	case strings.Contains(u, "windows"):
+	case strings.Contains(strings.ToLower(u), "windows"):
 		platformOS = "windows"
+	default:
+		platformOS = "linux"
 	}
 
 	switch {
-	case strings.Contains(strings.ToLower(u), "x86-64") || strings.Contains(strings.ToLower(u), "x86_64"):
-		platformArch = "X86_64"
 	case strings.Contains(strings.ToLower(u), "arm"):
 		platformArch = "arm"
+	default:
+		platformArch = "x86_64"
 	}
 
 	return platformOS, platformArch, nil
