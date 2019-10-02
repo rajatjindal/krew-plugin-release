@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/rajatjindal/krew-plugin-release-go/pkg/actions"
+	"github.com/rajatjindal/krew-plugin-release/pkg/actions"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
