@@ -22,12 +22,12 @@ var rootCmd = &cobra.Command{
 			logrus.Fatal(err)
 		}
 
-		exists, err := actions.RepoExists("rajatjindal", "random-repo")
+		exists, err := actions.RepoExists("rajatjindal", "krew-index")
 		if err != nil {
 			logrus.Fatal(err)
 		}
 
-		logrus.Infof("repo %s/%s exists? %t", "rajatjindal", "random-repo", exists)
+		logrus.Infof("repo %s/%s exists? %t", "rajatjindal", "krew-index", exists)
 
 		dir, err := ioutil.TempDir("", "krew-index-")
 		if err != nil {
