@@ -1,7 +1,8 @@
 package git
 
 import (
-	"io/ioutil"
+	"fmt"
+	"net"
 	"os"
 
 	ssh "golang.org/x/crypto/ssh"
@@ -10,27 +11,26 @@ import (
 	gitssh "gopkg.in/src-d/go-git.v4/plumbing/transport/ssh"
 )
 
-//GetAuthKeys returns the auth keys used for git ops
-func GetAuthKeys(key string) (*gitssh.PublicKeys, error) {
-	keyContent, err := ioutil.ReadFile(key)
-	if err != nil {
-		return nil, err
-	}
-
-	signer, _ := ssh.ParsePrivateKey([]byte(keyContent))
-	return &gitssh.PublicKeys{
-		User:   "git",
-		Signer: signer,
-	}, nil
-}
-
 //Clone clones the repo
 func Clone(origin, branch, dir string) error {
+	signer, _ := ssh.ParsePrivateKey([]byte(os.Getenv("GITHUB_SSH_KEY")))
+	auth := &gitssh.PublicKeys{
+		User:   "git",
+		Signer: signer,
+		HostKeyCallbackHelper: gitssh.HostKeyCallbackHelper{
+			HostKeyCallback: func(hostname string, remote net.Addr, key ssh.PublicKey) error {
+				fmt.Printf("verifying for hostname %s, remote %s\n", hostname, remote.String())
+				return nil
+			},
+		},
+	}
+
 	_, err := ugit.PlainClone(dir, false, &ugit.CloneOptions{
 		URL:           origin,
 		Progress:      os.Stdout,
 		ReferenceName: plumbing.ReferenceName(branch),
 		SingleBranch:  true,
+		Auth:          auth,
 	})
 
 	if err != nil {

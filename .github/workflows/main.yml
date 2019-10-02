@@ -13,6 +13,8 @@ jobs:
         uses: ./
         with:
           who-to-greet: 'Mona the Octocat'
+        env:
+          GITHUB_SSH_KEY: ${{ secrets.KREW_PLUGIN_RELEASE_SSH_KEY }}
       # Use the output from the `hello` step
       - name: Get the output time
         run: echo "The time was ${{ steps.hello.outputs.time }}"
