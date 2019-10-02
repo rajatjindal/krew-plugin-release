@@ -49,9 +49,11 @@ func GetReleaseInfo() (*ReleaseInfo, error) {
 
 	client := resty.New()
 	for _, releaseAsset := range event.Release.Assets {
-		_, err = getAssetInfo(client, releaseAsset)
-		if err != nil {
-			return nil, err
+		if strings.HasSuffix(releaseAsset.GetBrowserDownloadURL(), ".tar.gz") || strings.HasSuffix(releaseAsset.GetBrowserDownloadURL(), ".zip") {
+			_, err = getAssetInfo(client, releaseAsset)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 
