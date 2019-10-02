@@ -2,6 +2,7 @@ package actions
 
 import (
 	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -80,7 +81,7 @@ func getAssetInfo(client *resty.Client, releaseAsset github.ReleaseAsset) (*Asse
 	}
 
 	platformOS, platformArch, err := getPlatformInfo(releaseAsset.GetBrowserDownloadURL())
-	logrus.Infof("platformOS: %s, platformArch: %s, sha256: %s", platformOS, platformArch, string(sha256))
+	logrus.Infof("platformOS: %s, platformArch: %s, sha256: %s", platformOS, platformArch, sha256)
 	return nil, nil
 }
 
@@ -92,19 +93,19 @@ func stringValue(s *string) string {
 	return *s
 }
 
-func getSha256(filename string) ([]byte, error) {
+func getSha256(filename string) (string, error) {
 	f, err := os.Open(filename)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	defer f.Close()
 
 	h := sha256.New()
 	if _, err := io.Copy(h, f); err != nil {
-		return nil, err
+		return "", err
 	}
 
-	return h.Sum(nil), nil
+	return hex.EncodeToString(h.Sum(nil)), nil
 }
 
 func getPlatformInfo(u string) (string, string, error) {
