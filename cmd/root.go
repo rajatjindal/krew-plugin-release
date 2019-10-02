@@ -7,6 +7,7 @@ import (
 
 	"github.com/rajatjindal/krew-plugin-release/pkg/actions"
 	"github.com/rajatjindal/krew-plugin-release/pkg/git"
+	"github.com/rajatjindal/krew-plugin-release/pkg/krew"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -16,29 +17,25 @@ var rootCmd = &cobra.Command{
 	Use:   "krew-plugin-release",
 	Short: "tool to make PR to krew-plugin-release",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("from inside golang")
-		_, err := actions.GetReleaseInfo()
+		releaseInfo, err := actions.GetReleaseInfo()
 		if err != nil {
 			logrus.Fatal(err)
 		}
-
-		exists, err := actions.RepoExists("rajatjindal", "krew-index")
-		if err != nil {
-			logrus.Fatal(err)
-		}
-
-		logrus.Infof("repo %s/%s exists? %t", "rajatjindal", "krew-index", exists)
 
 		dir, err := ioutil.TempDir("", "krew-index-")
 		if err != nil {
 			logrus.Fatal(err)
 		}
 
-		err = git.Clone("git@github.com:rajatjindal/krew-index.git", git.GetMasterBranchRefs(), dir)
+		err = UpdateOriginFromUpstream(dir)
 		if err != nil {
 			logrus.Fatal(err)
 		}
 
+		err = krew.UpdatePluginManifest(dir, "modify-secret", releaseInfo)
+		if err != nil {
+			logrus.Fatal(err)
+		}
 	},
 }
 
@@ -49,4 +46,33 @@ func Execute() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+}
+
+func UpdateOriginFromUpstream(dir string) error {
+	err := git.Clone("git@github.com:rajatjindal/krew-index.git", git.GetMasterBranchRefs(), dir)
+	if err != nil {
+		return err
+	}
+
+	err = git.AddUpstream(dir, "https://github.com/kubernetes-sigs/krew-index.git")
+	if err != nil {
+		return err
+	}
+
+	err = git.FetchUpstream(dir)
+	if err != nil {
+		return err
+	}
+
+	err = git.RebaseUpstream(dir)
+	if err != nil {
+		return err
+	}
+
+	err = git.PushOriginMaster(dir)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
