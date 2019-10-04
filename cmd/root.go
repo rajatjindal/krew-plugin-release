@@ -32,11 +32,39 @@ var rootCmd = &cobra.Command{
 			logrus.Fatal(err)
 		}
 
+		err = git.CreateBranch(dir, releaseInfo.GetTagName())
+		if err != nil {
+			logrus.Fatal(err)
+		}
+
+		err = git.CheckoutBranch(dir, releaseInfo.GetTagName())
+		if err != nil {
+			logrus.Fatal(err)
+		}
+
 		err = krew.UpdatePluginManifest(dir, "modify-secret", releaseInfo)
 		if err != nil {
 			logrus.Fatal(err)
 		}
+
+		err = git.CommitAndPush(dir, "new version of modify-secret", releaseInfo.GetTagName())
+		if err != nil {
+			logrus.Fatal(err)
+		}
 	},
+}
+
+func stringp(s string) *string {
+	return &s
+}
+
+func submitPR() {
+	// pr := github.NewPullRequest{
+	// 	Title: stringp("release new version of modify-secret"),
+	// 	Head:  stringp("rajatjindal:krew-index"),
+	// 	Base:  stringp("master"),
+	// 	Body:  stringp("hey krew-index team, I would like to open this PR to release new version of modify-secret"),
+	// }
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -49,12 +77,12 @@ func Execute() {
 }
 
 func UpdateOriginFromUpstream(dir string) error {
-	err := git.Clone("git@github.com:rajatjindal/krew-index.git", git.GetMasterBranchRefs(), dir)
+	err := git.Clone("https://github.com/rajatjindal/krew-index.git", git.GetMasterBranchRefs(), dir)
 	if err != nil {
 		return err
 	}
 
-	err = git.AddUpstream(dir, "https://github.com/kubernetes-sigs/krew-index.git")
+	err = git.AddUpstream(dir, "https://github.com/rajatjin/krew-index.git")
 	if err != nil {
 		return err
 	}

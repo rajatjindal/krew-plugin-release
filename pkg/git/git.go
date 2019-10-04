@@ -2,34 +2,20 @@ package git
 
 import (
 	"fmt"
-	"net"
 	"os"
 	"os/exec"
 
 	"github.com/pkg/errors"
-	ssh "golang.org/x/crypto/ssh"
 	ugit "gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/plumbing"
-	gitssh "gopkg.in/src-d/go-git.v4/plumbing/transport/ssh"
+	githttp "gopkg.in/src-d/go-git.v4/plumbing/transport/http"
 )
 
 //Clone clones the repo
 func Clone(origin, branch, dir string) error {
-	// if len(os.Getenv("GITHUB_SSH_KEY")) == 0 {
-	// 	return fmt.Errorf("env GITHUB_SSH_KEY not found")
-	// }
-
-	// signer, _ := ssh.ParsePrivateKey([]byte(os.Getenv("GITHUB_SSH_KEY")))
-	signer, _ := ssh.ParsePrivateKey([]byte(sshkey))
-	auth := &gitssh.PublicKeys{
-		User:   "git",
-		Signer: signer,
-		HostKeyCallbackHelper: gitssh.HostKeyCallbackHelper{
-			HostKeyCallback: func(hostname string, remote net.Addr, key ssh.PublicKey) error {
-				fmt.Printf("verifying for hostname %s, remote %s\n", hostname, remote.String())
-				return nil
-			},
-		},
+	auth := &githttp.BasicAuth{
+		Username: "rjindal",
+		Password: os.Getenv("KREW_PLUGIN_RELEASE_TOKEN"),
 	}
 
 	_, err := ugit.PlainClone(dir, false, &ugit.CloneOptions{
@@ -101,7 +87,7 @@ func RebaseUpstream(dir string) error {
 		"upstream/master",
 	}
 
-	fmt.Println(dir)
+	fmt.Println(dir, cmdline)
 
 	cmd := exec.Command("git", cmdline...)
 	cmd.Dir = dir
@@ -134,7 +120,7 @@ func PushOriginMaster(dir string) error {
 
 	err := cmd.Run()
 	if err != nil {
-		return errors.Wrap(err, "failed when running git rebase upstream master command.")
+		return errors.Wrap(err, "failed when running git push origin master command.")
 	}
 
 	return nil
@@ -157,6 +143,28 @@ func CreateBranch(dir, branchName string) error {
 	err := cmd.Run()
 	if err != nil {
 		return errors.Wrap(err, "failed when running git branch command.")
+	}
+
+	return nil
+}
+
+func CheckoutBranch(dir, branchName string) error {
+	cmdline := []string{
+		"checkout",
+		branchName,
+	}
+
+	fmt.Println(dir)
+
+	cmd := exec.Command("git", cmdline...)
+	cmd.Dir = dir
+
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	err := cmd.Run()
+	if err != nil {
+		return errors.Wrap(err, "failed when running git checkout command.")
 	}
 
 	return nil
@@ -226,5 +234,3 @@ func Push(dir, branchName string) error {
 func ForkRepo(upstream string) error {
 	return nil
 }
-
-var sshkey = ``

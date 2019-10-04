@@ -16,13 +16,13 @@ var payload = []byte(`{
 	"release": {
 		"assets": [
 		{
-			"browser_download_url": "https://github.com/rajatjindal/krew-plugin-release/releases/download/v0.0.5/darwin-amd64-v0.0.6.tar.gz",
+			"browser_download_url": "https://github.com/rajatjindal/krew-plugin-release/releases/download/v0.0.7/darwin-amd64-v0.0.7.tar.gz",
 			"content_type": "application/x-gzip",
 			"created_at": "2019-09-30T10:51:23Z",
 			"download_count": 0,
 			"id": 15204574,
 			"label": null,
-			"name": "darwin-amd64-v0.0.6.tar.gz",
+			"name": "darwin-amd64-v0.0.7.tar.gz",
 			"node_id": "MDEyOlJlbGVhc2VBc3NldDE1MjA0NTc0",
 			"size": 9150835,
 			"state": "uploaded",
@@ -50,13 +50,13 @@ var payload = []byte(`{
 			"url": "https://api.github.com/repos/rajatjindal/krew-plugin-release/releases/assets/15204574"
 		},
 		{
-			"browser_download_url": "https://github.com/rajatjindal/krew-plugin-release/releases/download/v0.0.5/linux-amd64-v0.0.6.tar.gz",
+			"browser_download_url": "https://github.com/rajatjindal/krew-plugin-release/releases/download/v0.0.7/linux-amd64-v0.0.7.tar.gz",
 			"content_type": "application/x-gzip",
 			"created_at": "2019-09-30T10:50:34Z",
 			"download_count": 0,
 			"id": 15204570,
 			"label": null,
-			"name": "linux-amd64-v0.0.6.tar.gz",
+			"name": "linux-amd64-v0.0.7.tar.gz",
 			"node_id": "MDEyOlJlbGVhc2VBc3NldDE1MjA0NTcw",
 			"size": 8657197,
 			"state": "uploaded",
@@ -84,13 +84,13 @@ var payload = []byte(`{
 			"url": "https://api.github.com/repos/rajatjindal/krew-plugin-release/releases/assets/15204570"
 		},
 		{
-			"browser_download_url": "https://github.com/rajatjindal/krew-plugin-release/releases/download/v0.0.5/sha256-darwin-amd64-v0.0.6",
+			"browser_download_url": "https://github.com/rajatjindal/krew-plugin-release/releases/download/v0.0.7/sha256-darwin-amd64-v0.0.7",
 			"content_type": "application/octet-stream",
 			"created_at": "2019-09-30T10:51:23Z",
 			"download_count": 0,
 			"id": 15204575,
 			"label": null,
-			"name": "sha256-darwin-amd64-v0.0.6",
+			"name": "sha256-darwin-amd64-v0.0.7",
 			"node_id": "MDEyOlJlbGVhc2VBc3NldDE1MjA0NTc1",
 			"size": 65,
 			"state": "uploaded",
@@ -118,13 +118,13 @@ var payload = []byte(`{
 			"url": "https://api.github.com/repos/rajatjindal/krew-plugin-release/releases/assets/15204575"
 		},
 		{
-			"browser_download_url": "https://github.com/rajatjindal/krew-plugin-release/releases/download/v0.0.5/sha256-linux-amd64-v0.0.6",
+			"browser_download_url": "https://github.com/rajatjindal/krew-plugin-release/releases/download/v0.0.7/sha256-linux-amd64-v0.0.7",
 			"content_type": "application/octet-stream",
 			"created_at": "2019-09-30T10:50:35Z",
 			"download_count": 0,
 			"id": 15204571,
 			"label": null,
-			"name": "sha256-linux-amd64-v0.0.6",
+			"name": "sha256-linux-amd64-v0.0.7",
 			"node_id": "MDEyOlJlbGVhc2VBc3NldDE1MjA0NTcx",
 			"size": 65,
 			"state": "uploaded",
@@ -173,21 +173,21 @@ var payload = []byte(`{
 		"type": "User",
 		"url": "https://api.github.com/users/rajatjindal"
 		},
-		"body": "v0.0.5",
+		"body": "v0.0.7",
 		"created_at": "2019-09-29T15:14:53Z",
 		"draft": false,
-		"html_url": "https://github.com/rajatjindal/krew-plugin-release/releases/tag/v0.0.5",
+		"html_url": "https://github.com/rajatjindal/krew-plugin-release/releases/tag/v0.0.7",
 		"id": 20348112,
-		"name": "release v0.0.5",
+		"name": "release v0.0.7",
 		"node_id": "MDc6UmVsZWFzZTIwMzQ4MTEy",
 		"prerelease": false,
 		"published_at": "2019-09-30T10:51:48Z",
-		"tag_name": "v0.0.5",
-		"tarball_url": "https://api.github.com/repos/rajatjindal/krew-plugin-release/tarball/v0.0.5",
+		"tag_name": "v0.0.7",
+		"tarball_url": "https://api.github.com/repos/rajatjindal/krew-plugin-release/tarball/v0.0.7",
 		"target_commitish": "master",
 		"upload_url": "https://uploads.github.com/repos/rajatjindal/krew-plugin-release/releases/20348112/assets{?name,label}",
 		"url": "https://api.github.com/repos/rajatjindal/krew-plugin-release/releases/20348112",
-		"zipball_url": "https://api.github.com/repos/rajatjindal/krew-plugin-release/zipball/v0.0.5"
+		"zipball_url": "https://api.github.com/repos/rajatjindal/krew-plugin-release/zipball/v0.0.7"
 	},
 	"repository": {
 		"archive_url": "https://api.github.com/repos/rajatjindal/krew-plugin-release/{archive_format}{/ref}",
