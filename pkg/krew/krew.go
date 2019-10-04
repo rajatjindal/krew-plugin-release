@@ -9,6 +9,7 @@ import (
 
 	"github.com/google/go-github/github"
 	"github.com/rajatjindal/krew-plugin-release/pkg/actions"
+	"github.com/sirupsen/logrus"
 	"sigs.k8s.io/krew/pkg/constants"
 )
 
@@ -69,6 +70,7 @@ func processPluginTemplate(releaseInfo *github.RepositoryRelease) ([]byte, error
 				panic(err)
 			}
 
+			logrus.Infof("getting sha256 for %s", buf.String())
 			sha256, err := getSha256ForAsset(buf.String())
 			if err != nil {
 				panic(err)

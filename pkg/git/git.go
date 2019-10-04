@@ -1,236 +1,140 @@
 package git
 
 import (
-	"fmt"
 	"os"
-	"os/exec"
+	"time"
 
-	"github.com/pkg/errors"
+	"gopkg.in/src-d/go-git.v4/plumbing/transport"
+
+	"gopkg.in/src-d/go-git.v4"
 	ugit "gopkg.in/src-d/go-git.v4"
+	"gopkg.in/src-d/go-git.v4/config"
 	"gopkg.in/src-d/go-git.v4/plumbing"
+	"gopkg.in/src-d/go-git.v4/plumbing/object"
 	githttp "gopkg.in/src-d/go-git.v4/plumbing/transport/http"
 )
 
-//Clone clones the repo
-func Clone(origin, branch, dir string) error {
-	auth := &githttp.BasicAuth{
+func getAuth() transport.AuthMethod {
+	return &githttp.BasicAuth{
 		Username: "rjindal",
 		Password: os.Getenv("KREW_PLUGIN_RELEASE_TOKEN"),
 	}
+}
 
-	_, err := ugit.PlainClone(dir, false, &ugit.CloneOptions{
+//Repository represents upstream repo
+type Repository ugit.Repository
+
+//Clone clones the repo
+func Clone(origin, branch, dir string) (*ugit.Repository, error) {
+
+	return ugit.PlainClone(dir, false, &ugit.CloneOptions{
 		URL:           origin,
 		Progress:      os.Stdout,
 		ReferenceName: plumbing.ReferenceName(branch),
 		SingleBranch:  true,
-		Auth:          auth,
+		Auth:          getAuth(),
 	})
-
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
+//GetMasterBranchRefs gets the branch name
 func GetMasterBranchRefs() string {
 	return string(plumbing.Master)
 }
 
-func AddUpstream(dir, upstream string) error {
-	cmdline := []string{
-		"remote",
-		"add",
-		"upstream",
-		upstream,
-	}
-
-	cmd := exec.Command("git", cmdline...)
-	cmd.Dir = dir
-
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	err := cmd.Run()
-	if err != nil {
-		return errors.Wrap(err, "failed when running git remote add upstream command.")
-	}
-
-	return nil
+//AddUpstream adds the upstream
+func AddUpstream(repo *ugit.Repository, upstream string) (*ugit.Remote, error) {
+	return repo.CreateRemote(&config.RemoteConfig{
+		Name: "upstream",
+		URLs: []string{upstream},
+	})
 }
 
-func FetchUpstream(dir string) error {
-	cmdline := []string{
-		"fetch",
-		"upstream",
-	}
-
-	fmt.Println(dir)
-
-	cmd := exec.Command("git", cmdline...)
-	cmd.Dir = dir
-
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	err := cmd.Run()
-	if err != nil {
-		return errors.Wrap(err, "failed when running git fetch upstream command.")
-	}
-
-	return nil
+//FetchUpstream fetches the upstream
+func FetchUpstream(remote *ugit.Remote) error {
+	return remote.Fetch(&ugit.FetchOptions{
+		RemoteName: "upstream",
+	})
 }
 
-func RebaseUpstream(dir string) error {
-	cmdline := []string{
-		"rebase",
-		"upstream/master",
-	}
-
-	fmt.Println(dir, cmdline)
-
-	cmd := exec.Command("git", cmdline...)
-	cmd.Dir = dir
-
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	err := cmd.Run()
-	if err != nil {
-		return errors.Wrap(err, "failed when running git rebase upstream master command.")
-	}
-
-	return nil
+//PushOriginMaster push code to master
+func PushOriginMaster(repo *ugit.Repository) error {
+	return repo.Push(&ugit.PushOptions{
+		RemoteName: "origin",
+		RefSpecs:   []config.RefSpec{config.DefaultPushRefSpec},
+		Auth:       getAuth(),
+	})
 }
 
-func PushOriginMaster(dir string) error {
-	cmdline := []string{
-		"push",
-		"origin",
-		"master",
-	}
-
-	fmt.Println(dir)
-
-	cmd := exec.Command("git", cmdline...)
-	cmd.Dir = dir
-
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	err := cmd.Run()
-	if err != nil {
-		return errors.Wrap(err, "failed when running git push origin master command.")
-	}
-
-	return nil
-}
-
-func CreateBranch(dir, branchName string) error {
-	cmdline := []string{
-		"branch",
-		branchName,
-	}
-
-	fmt.Println(dir)
-
-	cmd := exec.Command("git", cmdline...)
-	cmd.Dir = dir
-
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	err := cmd.Run()
-	if err != nil {
-		return errors.Wrap(err, "failed when running git branch command.")
-	}
-
-	return nil
-}
-
-func CheckoutBranch(dir, branchName string) error {
-	cmdline := []string{
-		"checkout",
-		branchName,
-	}
-
-	fmt.Println(dir)
-
-	cmd := exec.Command("git", cmdline...)
-	cmd.Dir = dir
-
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	err := cmd.Run()
-	if err != nil {
-		return errors.Wrap(err, "failed when running git checkout command.")
-	}
-
-	return nil
-}
-
-func CommitAndPush(dir, commitMsg, branchName string) error {
-	err := Commit(dir, commitMsg)
+//CreateBranch creates branch
+func CreateBranch(repo *ugit.Repository, branchName string) error {
+	w, err := repo.Worktree()
 	if err != nil {
 		return err
 	}
 
-	err = Push(dir, branchName)
+	// First try to create branch
+	err = w.Checkout(&git.CheckoutOptions{
+		Create: true,
+		Force:  false,
+		Branch: plumbing.NewBranchReferenceName(branchName),
+	})
+
+	if err == nil {
+		return nil
+	}
+
+	//may be it already exists
+	return w.Checkout(&git.CheckoutOptions{
+		Create: false,
+		Force:  false,
+		Branch: plumbing.NewBranchReferenceName(branchName),
+	})
+}
+
+//CheckoutBranch checksout branch
+func CheckoutBranch(repo *ugit.Repository, branchName string) error {
+	w, err := repo.Worktree()
 	if err != nil {
 		return err
 	}
 
-	return nil
+	return w.Checkout(&ugit.CheckoutOptions{
+		Branch: plumbing.NewBranchReferenceName(branchName),
+	})
 }
 
-func Commit(dir, commitMsg string) error {
-	cmdline := []string{
-		"commit",
-		"-m",
-		commitMsg,
-		".",
-	}
-
-	fmt.Println(dir)
-
-	cmd := exec.Command("git", cmdline...)
-	cmd.Dir = dir
-
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	err := cmd.Run()
+//AddCommitAndPush commits and push
+func AddCommitAndPush(repo *ugit.Repository, commitMsg, branchName string) error {
+	w, err := repo.Worktree()
 	if err != nil {
-		return errors.Wrap(err, "failed when running git commit command.")
+		return err
 	}
 
-	return nil
+	w.Add(".")
+	_, err = w.Commit(commitMsg, &git.CommitOptions{
+		Author: &object.Signature{
+			Name:  "Rajat Jindal",
+			Email: "rajatjindal83@gmail.com",
+			When:  time.Now(),
+		},
+	})
+
+	return repo.Push(&ugit.PushOptions{
+		RemoteName: "origin",
+		RefSpecs:   []config.RefSpec{config.DefaultPushRefSpec},
+		Auth:       getAuth(),
+	})
 }
 
-func Push(dir, branchName string) error {
-	cmdline := []string{
-		"push",
-		"origin",
-		branchName,
-	}
-
-	fmt.Println(dir)
-
-	cmd := exec.Command("git", cmdline...)
-	cmd.Dir = dir
-
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	err := cmd.Run()
+//PullRebase rebases from pull
+func PullRebase(repo *ugit.Repository, branchName string) error {
+	w, err := repo.Worktree()
 	if err != nil {
-		return errors.Wrap(err, "failed when running git push command.")
+		return err
 	}
 
-	return nil
-}
-
-func ForkRepo(upstream string) error {
-	return nil
+	return w.Pull(&git.PullOptions{
+		RemoteName: "origin",
+		Auth:       getAuth(),
+	})
 }
