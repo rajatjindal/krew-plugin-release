@@ -7,8 +7,7 @@ COPY . .
 
 RUN go build -o bin/krew-plugin-release main.go
 
-FROM debian:latest
-RUN apt-get update && apt-get install --yes git
+FROM alpine:latest
 
 COPY --from=builder /go/src/github.com/rajatjindal/krew-plugin-release/bin/krew-plugin-release /usr/local/bin/krew-plugin-release
 ENTRYPOINT [ "krew-plugin-release" ]
