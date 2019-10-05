@@ -81,7 +81,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1 
       - name: Open PR for new release of Krew Plugin
-        uses: rajatjindal/krew-plugin-release@v0.0.29
+        uses: rajatjindal/krew-plugin-release@v0.0.30
         with:
           plugin-name: 'your-plugin-name'
           upstream-krew-index-owner: 'kubernetes-sigs'
