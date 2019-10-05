@@ -10,4 +10,4 @@ RUN GOOS=linux CGO_ENABLED=0 go build -o bin/krew-plugin-release main.go
 FROM scratch
 
 COPY --from=builder /go/src/github.com/rajatjindal/krew-plugin-release/bin/krew-plugin-release /usr/local/bin/krew-plugin-release
-# ENTRYPOINT [ "krew-plugin-release" ]
+ENTRYPOINT [ "krew-plugin-release" ]
