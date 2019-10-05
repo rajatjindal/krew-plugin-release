@@ -8,7 +8,6 @@ import (
 
 	"github.com/google/go-github/github"
 	"github.com/sirupsen/logrus"
-	"sigs.k8s.io/krew/pkg/constants"
 )
 
 //UpdatePluginManifest updates the manifest with latest release info
@@ -67,5 +66,5 @@ func processPluginTemplate(templateFile string, releaseInfo *github.RepositoryRe
 
 //PluginFileName returns the plugin file with extension
 func PluginFileName(name string) string {
-	return fmt.Sprintf("%s%s", name, constants.ManifestExtension)
+	return fmt.Sprintf("%s%s", name, ".yaml")
 }

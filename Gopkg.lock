@@ -317,14 +317,6 @@
   revision = "ec4a0fea49c7b46c2aeb0b51aac55779c607e52b"
   version = "v0.1.2"
 
-[[projects]]
-  digest = "1:b21350a74d7b6b13333f6360ab35e2f0daee9693855de9f55fbc44029124f16e"
-  name = "sigs.k8s.io/krew"
-  packages = ["pkg/constants"]
-  pruneopts = "U"
-  revision = "c241a35a7c374e18df8901d3391ee6c80138a9e1"
-  version = "v0.3.1"
-
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
@@ -340,7 +332,6 @@
     "gopkg.in/src-d/go-git.v4/plumbing/object",
     "gopkg.in/src-d/go-git.v4/plumbing/transport",
     "gopkg.in/src-d/go-git.v4/plumbing/transport/http",
-    "sigs.k8s.io/krew/pkg/constants",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
