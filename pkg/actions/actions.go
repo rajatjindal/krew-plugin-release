@@ -70,14 +70,14 @@ func (r RealAction) GetActionData() (ActionData, error) {
 		return ActionData{}, err
 	}
 
-	upstreamKrewIndexRepoName := os.Getenv("UpstreamKrewIndexRepoName")
+	upstreamKrewIndexRepoName := r.getInputForAction("upstream-krew-index-repo-name")
 	if upstreamKrewIndexRepoName == "" {
 		upstreamKrewIndexRepoName = "krew-index"
 	}
 
-	upstreamKrewIndexRepoOwner := os.Getenv("UpstreamKrewIndexRepoOwner")
+	upstreamKrewIndexRepoOwner := r.getInputForAction("upstream-krew-index-owner")
 	if upstreamKrewIndexRepoOwner == "" {
-		upstreamKrewIndexRepoName = "kubernetes-sigs"
+		upstreamKrewIndexRepoOwner = "kubernetes-sigs"
 	}
 
 	return ActionData{
@@ -97,7 +97,7 @@ func (r RealAction) GetActionData() (ActionData, error) {
 		},
 		Derived: Derived{
 			UpstreamCloneURL: getRepoURL(upstreamKrewIndexRepoOwner, upstreamKrewIndexRepoName),
-			LocalCloneURL:    getRepoURL(strings.Split(os.Getenv("GITHUB_REPOSITORY"), "/")[10], strings.Split(os.Getenv("GITHUB_REPOSITORY"), "/")[1]),
+			LocalCloneURL:    getRepoURL(strings.Split(os.Getenv("GITHUB_REPOSITORY"), "/")[0], upstreamKrewIndexRepoName),
 		},
 	}, nil
 }

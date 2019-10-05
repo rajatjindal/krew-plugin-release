@@ -117,6 +117,13 @@ func submitPR(actionData actions.ActionData) error {
 		Body:  getPRBody(actionData),
 	}
 
+	logrus.Infof("creating pr with title %q, \nhead %q, \nbase %q, \nbody %q",
+		github.Stringify(getTitle(actionData)),
+		github.Stringify(getHead(actionData)),
+		"master",
+		github.Stringify(getPRBody(actionData)),
+	)
+
 	pr, _, err := client.PullRequests.Create(
 		context.TODO(),
 		actionData.Inputs.UpstreamKrewIndexOwner,
