@@ -5,10 +5,10 @@ inputs:
   plugin-name: 
     description: 'plugin name, defaults to git repo name where this action is triggered'
     required: true
-  who-to-greet:  # id of input
-    description: 'Who to greet'
+  upstream-krew-index-owner:
+    description: 'the owner of upstream krew-index repo'  
     required: true
-    default: 'World'
+    default: 'rajatjin'
 outputs:
   time: # id of output
     description: 'The time we greeted you'

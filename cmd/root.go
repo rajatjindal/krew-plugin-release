@@ -16,11 +16,31 @@ import (
 	ugit "gopkg.in/src-d/go-git.v4"
 )
 
+type actionInputs struct {
+	PluginName             string
+	Token                  string
+	UpstreamKrewIndexOwner string
+	localKrewIndexRepo     string
+	upstreamKrewIndexRepo  string
+	localRemoteName        string
+	upstreamRemoteName     string
+}
+
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "krew-plugin-release",
 	Short: "tool to make PR to krew-plugin-release",
 	Run: func(cmd *cobra.Command, args []string) {
+		inputs := actionInputs{
+			PluginName:             actions.GetInputForAction("plugin-name"),
+			Token:                  os.Getenv("KREW_PLUGIN_RELEASE_TOKEN"),
+			UpstreamKrewIndexOwner: actions.GetInputForAction("upstream-krew-index-owner"),
+			localKrewIndexRepo:     fmt.Sprintf("https://github.com/%s/krew-index.git", actions.GetRepoOwner()),
+			upstreamKrewIndexRepo:  fmt.Sprintf("https://github.com/%s/krew-index.git", actions.GetInputForAction("upstream-krew-index-owner")),
+			localRemoteName:        "local",
+			upstreamRemoteName:     "upstream",
+		}
+
 		logrus.Info("reading release payload")
 		releaseInfo, err := actions.GetReleaseInfo()
 		if err != nil {
@@ -33,7 +53,7 @@ var rootCmd = &cobra.Command{
 		}
 
 		logrus.Infof("will operate in tempdir %s", dir)
-		repo, err := updateOriginFromUpstream(dir)
+		repo, err := cloneRepos(inputs, dir)
 		if err != nil {
 			logrus.Fatal(err)
 		}
@@ -44,26 +64,20 @@ var rootCmd = &cobra.Command{
 			logrus.Fatal(err)
 		}
 
-		logrus.Infof("checking out branch %s", releaseInfo.GetTagName())
-		err = git.CheckoutBranch(repo, releaseInfo.GetTagName())
-		if err != nil {
-			logrus.Fatal(err)
-		}
-
 		logrus.Info("update plugin manifest with latest release info")
-		err = krew.UpdatePluginManifest(dir, "modify-secret", releaseInfo)
+		err = krew.UpdatePluginManifest(dir, inputs.PluginName, releaseInfo)
 		if err != nil {
 			logrus.Fatal(err)
 		}
 
 		logrus.Infof("pushing changes to branch %s", releaseInfo.GetTagName())
-		err = git.AddCommitAndPush(repo, "new version of modify-secret", releaseInfo.GetTagName())
+		err = git.AddCommitAndPush(repo, fmt.Sprintf("new version of %s", inputs.PluginName), inputs.localRemoteName, releaseInfo.GetTagName())
 		if err != nil {
 			logrus.Fatal(err)
 		}
 
 		logrus.Info("submitting the pr")
-		err = submitPR(releaseInfo.GetTagName())
+		err = submitPR(inputs, releaseInfo.GetTagName())
 		if err != nil {
 			logrus.Fatal(err)
 		}
@@ -74,23 +88,24 @@ func stringp(s string) *string {
 	return &s
 }
 
-func submitPR(branchName string) error {
-	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: os.Getenv("KREW_PLUGIN_RELEASE_TOKEN")})
+func submitPR(inputs actionInputs, branchName string) error {
+	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: os.Getenv("")})
 	tc := oauth2.NewClient(context.TODO(), ts)
 	client := github.NewClient(tc)
 
-	pr := &github.NewPullRequest{
-		Title: stringp("release new version of modify-secret"),
-		Head:  stringp(fmt.Sprintf("rajatjindal:%s", branchName)),
+	prr := &github.NewPullRequest{
+		Title: stringp(fmt.Sprintf("release new version of %s", inputs.PluginName)),
+		Head:  stringp(fmt.Sprintf("%s:%s", actions.GetRepoOwner(), branchName)),
 		Base:  stringp("master"),
 		Body:  stringp("hey krew-index team, I would like to open this PR to release new version of modify-secret"),
 	}
 
-	_, _, err := client.PullRequests.Create(context.TODO(), "rajatjin", "krew-index", pr)
+	pr, _, err := client.PullRequests.Create(context.TODO(), inputs.UpstreamKrewIndexOwner, "krew-index", prr)
 	if err != nil {
 		return err
 	}
 
+	logrus.Infof("pr %q opened for releasing new version", pr.GetHTMLURL())
 	return nil
 }
 
@@ -103,28 +118,16 @@ func Execute() {
 	}
 }
 
-func updateOriginFromUpstream(dir string) (*ugit.Repository, error) {
-	logrus.Infof("Cloning %s", "https://github.com/rajatjindal/krew-index.git")
-	repo, err := git.Clone("https://github.com/rajatjindal/krew-index.git", git.GetMasterBranchRefs(), dir)
+func cloneRepos(inputs actionInputs, dir string) (*ugit.Repository, error) {
+	logrus.Infof("Cloning %s", inputs.upstreamKrewIndexRepo)
+	repo, err := git.Clone(inputs.upstreamKrewIndexRepo, inputs.upstreamRemoteName, git.GetMasterBranchRefs(), dir)
 	if err != nil {
 		return nil, err
 	}
 
-	logrus.Infof("Adding remote %s", "https://github.com/rajatjin/krew-index.git")
-	remote, err := git.AddUpstream(repo, "https://github.com/rajatjin/krew-index.git")
+	logrus.Infof("Adding remote %s at %s", inputs.localRemoteName, inputs.localKrewIndexRepo)
+	_, err = git.AddUpstream(repo, inputs.localRemoteName, inputs.localKrewIndexRepo)
 	if err != nil {
-		return nil, err
-	}
-
-	logrus.Info("fetching upstream")
-	err = git.FetchUpstream(remote)
-	if err != nil {
-		return nil, err
-	}
-
-	logrus.Infof("pushing to origin/master of %s", "https://github.com/rajatjindal/krew-index.git")
-	err = git.PushOriginMaster(repo)
-	if err != nil && err.Error() != "already up-to-date" {
 		return nil, err
 	}
 

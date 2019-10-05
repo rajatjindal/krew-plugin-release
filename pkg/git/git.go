@@ -25,14 +25,14 @@ func getAuth() transport.AuthMethod {
 type Repository ugit.Repository
 
 //Clone clones the repo
-func Clone(origin, branch, dir string) (*ugit.Repository, error) {
-
+func Clone(remoteURL, remoteName, branch, dir string) (*ugit.Repository, error) {
 	return ugit.PlainClone(dir, false, &ugit.CloneOptions{
-		URL:           origin,
+		URL:           remoteURL,
 		Progress:      os.Stdout,
 		ReferenceName: plumbing.ReferenceName(branch),
 		SingleBranch:  true,
 		Auth:          getAuth(),
+		RemoteName:    remoteName,
 	})
 }
 
@@ -42,24 +42,24 @@ func GetMasterBranchRefs() string {
 }
 
 //AddUpstream adds the upstream
-func AddUpstream(repo *ugit.Repository, upstream string) (*ugit.Remote, error) {
+func AddUpstream(repo *ugit.Repository, remoteName, remoteURL string) (*ugit.Remote, error) {
 	return repo.CreateRemote(&config.RemoteConfig{
-		Name: "upstream",
-		URLs: []string{upstream},
+		Name: remoteName,
+		URLs: []string{remoteURL},
 	})
 }
 
 //FetchUpstream fetches the upstream
-func FetchUpstream(remote *ugit.Remote) error {
+func FetchUpstream(remote *ugit.Remote, remoteName string) error {
 	return remote.Fetch(&ugit.FetchOptions{
-		RemoteName: "upstream",
+		RemoteName: remoteName,
 	})
 }
 
-//PushOriginMaster push code to master
-func PushOriginMaster(repo *ugit.Repository) error {
+//Push push code
+func Push(repo *ugit.Repository, remoteName string) error {
 	return repo.Push(&ugit.PushOptions{
-		RemoteName: "origin",
+		RemoteName: remoteName,
 		RefSpecs:   []config.RefSpec{config.DefaultPushRefSpec},
 		Auth:       getAuth(),
 	})
@@ -104,7 +104,7 @@ func CheckoutBranch(repo *ugit.Repository, branchName string) error {
 }
 
 //AddCommitAndPush commits and push
-func AddCommitAndPush(repo *ugit.Repository, commitMsg, branchName string) error {
+func AddCommitAndPush(repo *ugit.Repository, commitMsg, remoteName, branchName string) error {
 	w, err := repo.Worktree()
 	if err != nil {
 		return err
@@ -120,21 +120,21 @@ func AddCommitAndPush(repo *ugit.Repository, commitMsg, branchName string) error
 	})
 
 	return repo.Push(&ugit.PushOptions{
-		RemoteName: "origin",
+		RemoteName: remoteName,
 		RefSpecs:   []config.RefSpec{config.DefaultPushRefSpec},
 		Auth:       getAuth(),
 	})
 }
 
 //PullRebase rebases from pull
-func PullRebase(repo *ugit.Repository, branchName string) error {
+func PullRebase(repo *ugit.Repository, remoteName, branchName string) error {
 	w, err := repo.Worktree()
 	if err != nil {
 		return err
 	}
 
 	return w.Pull(&git.PullOptions{
-		RemoteName: "origin",
+		RemoteName: remoteName,
 		Auth:       getAuth(),
 	})
 }
