@@ -33,7 +33,7 @@ var rootCmd = &cobra.Command{
 	Use:   "krew-plugin-release",
 	Short: "tool to make PR to krew-plugin-release",
 	Run: func(cmd *cobra.Command, args []string) {
-		action := actions.FakeAction{}
+		action := actions.RealAction{}
 
 		inputs := actionInputs{
 			PluginName:             action.GetPluginName(),
