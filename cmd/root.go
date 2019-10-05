@@ -22,7 +22,7 @@ var rootCmd = &cobra.Command{
 	Use:   "krew-plugin-release",
 	Short: "github action to open PR for krew-index on release of new version of krew-plugin",
 	Run: func(cmd *cobra.Command, args []string) {
-		action := actions.LocalAction{}
+		action := actions.RealAction{}
 		actionData, err := action.GetActionData()
 		if err != nil {
 			logrus.Fatal(err)
