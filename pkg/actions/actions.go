@@ -65,7 +65,7 @@ func (r RealAction) GetActionData() (ActionData, error) {
 	}
 
 	token := os.Getenv("KREW_PLUGIN_RELEASE_TOKEN")
-	tokenUserEmail, tokenUserName, err := r.getUserInfo(tokenUserHandle, token)
+	tokenUserEmail, tokenUserName, err := r.getUserInfo(token)
 	if err != nil {
 		return ActionData{}, err
 	}
@@ -122,12 +122,12 @@ func (r RealAction) getPayload() ([]byte, error) {
 	return data, nil
 }
 
-func (r RealAction) getUserInfo(username, token string) (string, string, error) {
+func (r RealAction) getUserInfo(token string) (string, string, error) {
 	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token})
 	tc := oauth2.NewClient(context.TODO(), ts)
 	client := github.NewClient(tc)
 
-	user, _, err := client.Users.Get(context.TODO(), username)
+	user, _, err := client.Users.Get(context.TODO(), "")
 	if err != nil {
 		return "", "", err
 	}
