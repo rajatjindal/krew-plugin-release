@@ -19,21 +19,23 @@ import (
 
 const prBody = `hey krew-index team,
 
-I would like to open this PR to release new version of %s on behalf of %s.
+I would like to open this PR to release new version %s of %s on behalf of %s.
 
 Thanks,
 [krew-plugin-release](https://github.com/rajatjindal/krew-plugin-release)`
 
-type actionInputs struct {
-	PluginName             string
-	Token                  string
-	UpstreamKrewIndexOwner string
-	LocalKrewIndexOwner    string
+type actionData struct {
+	pluginName             string
+	tagName                string
+	token                  string
+	localKrewIndexOwner    string
 	localKrewIndexRepo     string
-	upstreamKrewIndexRepo  string
 	localRemoteName        string
+	upstreamKrewIndexRepo  string
+	upstreamKrewIndexOwner string
 	upstreamRemoteName     string
-	Actor                  string
+	actor                  string
+	branchName             string
 }
 
 // rootCmd represents the base command when called without any subcommands
@@ -43,16 +45,16 @@ var rootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		action := actions.RealAction{}
 
-		inputs := actionInputs{
-			PluginName:             action.GetPluginName(),
-			Token:                  os.Getenv("KREW_PLUGIN_RELEASE_TOKEN"),
-			UpstreamKrewIndexOwner: action.GetInputForAction("upstream-krew-index-owner"),
-			LocalKrewIndexOwner:    action.GetRepoOwner(),
+		data := actionData{
+			pluginName:             action.GetPluginName(),
+			token:                  os.Getenv("KREW_PLUGIN_RELEASE_TOKEN"),
+			upstreamKrewIndexOwner: action.GetInputForAction("upstream-krew-index-owner"),
+			localKrewIndexOwner:    action.GetRepoOwner(),
 			localKrewIndexRepo:     fmt.Sprintf("https://github.com/%s/krew-index.git", action.GetRepoOwner()),
 			upstreamKrewIndexRepo:  fmt.Sprintf("https://github.com/%s/krew-index.git", action.GetInputForAction("upstream-krew-index-owner")),
 			localRemoteName:        "local",
 			upstreamRemoteName:     "upstream",
-			Actor:                  action.GetActor(),
+			actor:                  action.GetActor(),
 		}
 
 		logrus.Info("reading release payload")
@@ -61,13 +63,20 @@ var rootCmd = &cobra.Command{
 			logrus.Fatal(err)
 		}
 
+		if releaseInfo.GetPrerelease() {
+			logrus.Infof("%s is a pre-release. not opening the PR", releaseInfo.GetTagName())
+			logrus.Exit(0)
+		}
+		data.tagName = releaseInfo.GetTagName()
+		data.branchName = releaseInfo.GetTagName()
+
 		dir, err := ioutil.TempDir("", "krew-index-")
 		if err != nil {
 			logrus.Fatal(err)
 		}
 
 		logrus.Infof("will operate in tempdir %s", dir)
-		repo, err := cloneRepos(inputs, dir)
+		repo, err := cloneRepos(data, dir)
 		if err != nil {
 			logrus.Fatal(err)
 		}
@@ -81,20 +90,20 @@ var rootCmd = &cobra.Command{
 		logrus.Info("update plugin manifest with latest release info")
 
 		templateFile := filepath.Join(action.GetWorkspace(), ".krew.yaml")
-		actualFile := filepath.Join(dir, "plugins", krew.PluginFileName(inputs.PluginName))
+		actualFile := filepath.Join(dir, "plugins", krew.PluginFileName(data.pluginName))
 		err = krew.UpdatePluginManifest(templateFile, actualFile, releaseInfo)
 		if err != nil {
 			logrus.Fatal(err)
 		}
 
-		logrus.Infof("pushing changes to branch %s", releaseInfo.GetTagName())
-		err = git.AddCommitAndPush(repo, fmt.Sprintf("new version of %s", inputs.PluginName), inputs.localRemoteName, releaseInfo.GetTagName())
+		logrus.Infof("pushing changes to branch %s", data.tagName)
+		err = git.AddCommitAndPush(repo, fmt.Sprintf("new version of %s", data.pluginName), data.localRemoteName, data.tagName)
 		if err != nil {
 			logrus.Fatal(err)
 		}
 
 		logrus.Info("submitting the pr")
-		err = submitPR(inputs, releaseInfo.GetTagName())
+		err = submitPR(data)
 		if err != nil {
 			logrus.Fatal(err)
 		}
@@ -105,19 +114,19 @@ func stringp(s string) *string {
 	return &s
 }
 
-func submitPR(inputs actionInputs, branchName string) error {
+func submitPR(data actionData) error {
 	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: os.Getenv("KREW_PLUGIN_RELEASE_TOKEN")})
 	tc := oauth2.NewClient(context.TODO(), ts)
 	client := github.NewClient(tc)
 
 	prr := &github.NewPullRequest{
-		Title: stringp(fmt.Sprintf("release new version of %s", inputs.PluginName)),
-		Head:  stringp(fmt.Sprintf("%s:%s", inputs.LocalKrewIndexOwner, branchName)),
+		Title: stringp(fmt.Sprintf("release new version %s of %s", data.tagName, data.pluginName)),
+		Head:  stringp(fmt.Sprintf("%s:%s", data.localKrewIndexOwner, data.branchName)),
 		Base:  stringp("master"),
-		Body:  stringp(fmt.Sprintf(prBody, inputs.PluginName, inputs.Actor)),
+		Body:  stringp(fmt.Sprintf(prBody, data.tagName, data.pluginName, data.actor)),
 	}
 
-	pr, _, err := client.PullRequests.Create(context.TODO(), inputs.UpstreamKrewIndexOwner, "krew-index", prr)
+	pr, _, err := client.PullRequests.Create(context.TODO(), data.upstreamKrewIndexOwner, "krew-index", prr)
 	if err != nil {
 		return err
 	}
@@ -135,15 +144,15 @@ func Execute() {
 	}
 }
 
-func cloneRepos(inputs actionInputs, dir string) (*ugit.Repository, error) {
-	logrus.Infof("Cloning %s", inputs.upstreamKrewIndexRepo)
-	repo, err := git.Clone(inputs.upstreamKrewIndexRepo, inputs.upstreamRemoteName, git.GetMasterBranchRefs(), dir)
+func cloneRepos(data actionData, dir string) (*ugit.Repository, error) {
+	logrus.Infof("Cloning %s", data.upstreamKrewIndexRepo)
+	repo, err := git.Clone(data.upstreamKrewIndexRepo, data.upstreamRemoteName, git.GetMasterBranchRefs(), dir)
 	if err != nil {
 		return nil, err
 	}
 
-	logrus.Infof("Adding remote %s at %s", inputs.localRemoteName, inputs.localKrewIndexRepo)
-	_, err = git.AddUpstream(repo, inputs.localRemoteName, inputs.localKrewIndexRepo)
+	logrus.Infof("Adding remote %s at %s", data.localRemoteName, data.localKrewIndexRepo)
+	_, err = git.AddUpstream(repo, data.localRemoteName, data.localKrewIndexRepo)
 	if err != nil {
 		return nil, err
 	}
