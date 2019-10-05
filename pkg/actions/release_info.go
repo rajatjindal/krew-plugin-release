@@ -23,6 +23,10 @@ func GetReleaseInfo(action ActionData) (*github.RepositoryRelease, error) {
 		return nil, fmt.Errorf("invalid event data")
 	}
 
+	if event.Release == nil {
+		return nil, fmt.Errorf("event.Release is nil %s", string(payload))
+	}
+
 	if len(event.Release.Assets) == 0 {
 		return nil, fmt.Errorf("no assets found")
 	}

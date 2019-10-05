@@ -5,7 +5,7 @@ WORKDIR /go/src/github.com/rajatjindal/krew-plugin-release
 
 COPY . .
 
-RUN GOOS=linux CGO_ENABLED=0 go build -o bin/krew-plugin-release main.go
+RUN GOOS=linux CGO_ENABLED=0 go build  -ldflags "-w -s" -o bin/krew-plugin-release main.go
 
 FROM scratch
 
