@@ -1,13 +1,48 @@
 package actions
 
-//GetPayload reads payload and returns it
-func GetPayload() ([]byte, error) {
-	// eventJSONPath := os.Getenv("GITHUB_EVENT_PATH")
-	// data, err := ioutil.ReadFile(eventJSONPath)
-	// if err != nil {
-	// 	return nil, err
-	// }
+import (
+	"fmt"
+	"os"
+	"strings"
+)
 
+//FakeAction is the real action
+type FakeAction struct{}
+
+//GetWorkspace returns workspace
+func (r FakeAction) GetWorkspace() string {
+	return ""
+}
+
+//GetActor returns the actor
+func (r FakeAction) GetActor() string {
+	return "rajatjindal"
+}
+
+//GetRepoOwner returns the repo owner where action is running
+func (r FakeAction) GetRepoOwner() string {
+	return "rajatjindal"
+}
+
+//GetInputForAction gets input to action
+func (r FakeAction) GetInputForAction(key string) string {
+	switch key {
+	case "plugin-name":
+		return "modify-secret"
+	case "upstream-krew-index-owner":
+		return "rajatjin"
+	}
+
+	return os.Getenv(fmt.Sprintf("INPUT_%s", strings.ToUpper(key)))
+}
+
+//GetPluginName returns plugin name
+func (r FakeAction) GetPluginName() string {
+	return "modify-secret"
+}
+
+//GetPayload reads payload and returns it
+func (r FakeAction) GetPayload() ([]byte, error) {
 	return payload, nil
 }
 

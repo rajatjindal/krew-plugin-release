@@ -4,54 +4,24 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
-	"path/filepath"
 	"text/template"
 
 	"github.com/google/go-github/github"
-	"github.com/rajatjindal/krew-plugin-release/pkg/actions"
 	"github.com/sirupsen/logrus"
 	"sigs.k8s.io/krew/pkg/constants"
 )
 
-// //UpdatePluginManifest2 is 2
-// func UpdatePluginManifest2(baseDir, pluginName string, release *github.RepositoryRelease) error {
-// 	pluginManifest, err := indexscanner.ReadPluginFile(filepath.Join(actions.GetWorkspace(), ".krew.yaml"))
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	for _, platform := range pluginManifest.Spec.Platforms {
-// 		t := template.New("uri").Parse(platform.URI)
-// 		buf := new(bytes.Buffer)
-// 		t.Execute(buf, release)
-
-// 		sha256, err := getSha256ForAsset(buf.String())
-// 		if err != nil {
-// 			return err
-// 		}
-
-// 	}
-
-// 	return nil
-// }
-
 //UpdatePluginManifest updates the manifest with latest release info
-func UpdatePluginManifest(baseDir, pluginName string, release *github.RepositoryRelease) error {
-	processedPluginBytes, err := processPluginTemplate(release)
+func UpdatePluginManifest(templateFile, actualFile string, release *github.RepositoryRelease) error {
+	processedPluginBytes, err := processPluginTemplate(templateFile, release)
 	if err != nil {
 		return err
 	}
 
-	// pluginFileWithSha256, err := addSha256ToPluginFile(pluginName, processedPluginBytes)
-	// if err != nil {
-	// 	return err
-	// }
-
-	pluginsFile := filepath.Join(baseDir, "plugins", pluginFileName(pluginName))
-	return ioutil.WriteFile(pluginsFile, processedPluginBytes, 0644)
+	return ioutil.WriteFile(actualFile, processedPluginBytes, 0644)
 }
 
-func processPluginTemplate(releaseInfo *github.RepositoryRelease) ([]byte, error) {
+func processPluginTemplate(templateFile string, releaseInfo *github.RepositoryRelease) ([]byte, error) {
 	t := template.New(".krew.yaml").Funcs(map[string]interface{}{
 		"addURIAndSha": func(url, tag string) string {
 			t := struct {
@@ -81,7 +51,7 @@ func processPluginTemplate(releaseInfo *github.RepositoryRelease) ([]byte, error
 		},
 	})
 
-	templateObject, err := t.ParseFiles(filepath.Join(actions.GetWorkspace(), ".krew.yaml"))
+	templateObject, err := t.ParseFiles(templateFile)
 	if err != nil {
 		return nil, err
 	}
@@ -95,6 +65,7 @@ func processPluginTemplate(releaseInfo *github.RepositoryRelease) ([]byte, error
 	return buf.Bytes(), nil
 }
 
-func pluginFileName(name string) string {
+//PluginFileName returns the plugin file with extension
+func PluginFileName(name string) string {
 	return fmt.Sprintf("%s%s", name, constants.ManifestExtension)
 }

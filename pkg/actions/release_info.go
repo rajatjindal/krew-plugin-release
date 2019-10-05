@@ -7,8 +7,8 @@ import (
 )
 
 //GetReleaseInfo gets the release info
-func GetReleaseInfo() (*github.RepositoryRelease, error) {
-	payload, err := GetPayload()
+func GetReleaseInfo(action ActionData) (*github.RepositoryRelease, error) {
+	payload, err := action.GetPayload()
 	if err != nil {
 		return nil, err
 	}
