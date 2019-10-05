@@ -7,7 +7,7 @@ COPY . .
 
 RUN GOOS=linux CGO_ENABLED=0 go build  -ldflags "-w -s" -o bin/krew-plugin-release main.go
 
-FROM scratch
+FROM alpine:3.10.2
 
 COPY --from=builder /go/src/github.com/rajatjindal/krew-plugin-release/bin/krew-plugin-release /usr/local/bin/krew-plugin-release
 ENTRYPOINT [ "krew-plugin-release" ]
