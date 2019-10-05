@@ -1,9 +1,9 @@
 # action.yml
-name: 'Hello World'
-description: 'Greet someone and record the time'
+name: 'krew-plugin-release'
+description: 'automatically opens PR for upstream krew-index repo when you publish new release of your awesome plugin'
 inputs:
   plugin-name: 
-    description: 'plugin name, defaults to git repo name where this action is triggered'
+    description: 'plugin-name'
     required: true
   upstream-krew-index-owner:
     description: 'the owner of upstream krew-index repo'  
@@ -14,7 +14,7 @@ outputs:
     description: 'The time we greeted you'
 runs:
   using: 'docker'
-  image: 'Dockerfile'
+  image: 'rajatjindal/krew-plugin-release:v0.0.20'
   args:
-    - ${{ inputs.who-to-greet }}
+    - ${{ inputs.upstream-krew-index-owner }}
     - ${{ inputs.plugin-name }}
