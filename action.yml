@@ -6,10 +6,10 @@ inputs:
     description: 'plugin-name'
     required: true
   upstream-krew-index-owner:
-    description: 'the owner of upstream krew-index repo'  
+    description: 'the owner of upstream krew-index repo. defaults to kubernetes-sigs'  
     required: false
   upstream-krew-index-repo-name:
-    description: 'the owner of upstream krew-index repo'  
+    description: 'the owner of upstream krew-index repo. defaults to krew-index'  
     required: false
 runs:
   using: 'docker'
