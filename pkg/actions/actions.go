@@ -22,15 +22,21 @@ type Inputs struct {
 	UpstreamKrewIndexOwner    string
 }
 
+//Derived is derived data
+type Derived struct {
+	UpstreamCloneURL string
+	LocalCloneURL    string
+}
+
 //ActionData is action data
 type ActionData struct {
 	Workspace   string
 	Actor       string
 	Repo        string
 	RepoOwner   string
-	Payload     []byte
 	Inputs      Inputs
 	ReleaseInfo *github.RepositoryRelease
+	Derived     Derived
 }
 
 //Action defines interface to get data from actions
@@ -79,7 +85,6 @@ func (r RealAction) GetActionData() (ActionData, error) {
 		Actor:       os.Getenv("GITHUB_ACTOR"),
 		Repo:        strings.Split(os.Getenv("GITHUB_REPOSITORY"), "/")[1],
 		RepoOwner:   strings.Split(os.Getenv("GITHUB_REPOSITORY"), "/")[0],
-		Payload:     payload,
 		ReleaseInfo: releaseInfo,
 		Inputs: Inputs{
 			PluginName:                r.getInputForAction("plugin-name"),
@@ -90,7 +95,15 @@ func (r RealAction) GetActionData() (ActionData, error) {
 			UpstreamKrewIndexOwner:    upstreamKrewIndexRepoOwner,
 			UpstreamKrewIndexRepoName: upstreamKrewIndexRepoName,
 		},
+		Derived: Derived{
+			UpstreamCloneURL: getRepoURL(upstreamKrewIndexRepoOwner, upstreamKrewIndexRepoName),
+			LocalCloneURL:    getRepoURL(strings.Split(os.Getenv("GITHUB_REPOSITORY"), "/")[10], strings.Split(os.Getenv("GITHUB_REPOSITORY"), "/")[1]),
+		},
 	}, nil
+}
+
+func getRepoURL(owner, repo string) string {
+	return fmt.Sprintf("https://github.com/%s/%s.git", owner, repo)
 }
 
 //getInputForAction gets input to action

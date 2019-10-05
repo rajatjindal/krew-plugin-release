@@ -17,7 +17,6 @@ func (l LocalAction) GetActionData() (ActionData, error) {
 		Actor:       "rajatjindal",
 		Repo:        "krew-plugin-release",
 		RepoOwner:   "rajatjindal",
-		Payload:     l.getPayload(),
 		ReleaseInfo: releaseInfo,
 		Inputs: Inputs{
 			PluginName:                "modify-secret",
@@ -27,6 +26,10 @@ func (l LocalAction) GetActionData() (ActionData, error) {
 			TokenUserName:             "Rajat Jindal",
 			UpstreamKrewIndexOwner:    "rajatjin",
 			UpstreamKrewIndexRepoName: "krew-index",
+		},
+		Derived: Derived{
+			UpstreamCloneURL: getRepoURL("rajatjin", "krew-index"),
+			LocalCloneURL:    getRepoURL("rajatjindal", "krew-index"),
 		},
 	}, nil
 }
