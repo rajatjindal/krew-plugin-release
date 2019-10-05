@@ -1,6 +1,7 @@
 package git
 
 import (
+	"fmt"
 	"os"
 	"time"
 
@@ -53,15 +54,6 @@ func AddUpstream(repo *ugit.Repository, remoteName, remoteURL string) (*ugit.Rem
 func FetchUpstream(remote *ugit.Remote, remoteName string) error {
 	return remote.Fetch(&ugit.FetchOptions{
 		RemoteName: remoteName,
-	})
-}
-
-//Push push code
-func Push(repo *ugit.Repository, remoteName string) error {
-	return repo.Push(&ugit.PushOptions{
-		RemoteName: remoteName,
-		RefSpecs:   []config.RefSpec{config.DefaultPushRefSpec},
-		Auth:       getAuth(),
 	})
 }
 
@@ -121,7 +113,7 @@ func AddCommitAndPush(repo *ugit.Repository, commitMsg, remoteName, branchName s
 
 	return repo.Push(&ugit.PushOptions{
 		RemoteName: remoteName,
-		RefSpecs:   []config.RefSpec{config.DefaultPushRefSpec},
+		RefSpecs:   []config.RefSpec{getRefSpec(remoteName, branchName)},
 		Auth:       getAuth(),
 	})
 }
@@ -137,4 +129,8 @@ func PullRebase(repo *ugit.Repository, remoteName, branchName string) error {
 		RemoteName: remoteName,
 		Auth:       getAuth(),
 	})
+}
+
+func getRefSpec(remoteName, branchName string) config.RefSpec {
+	return config.RefSpec(fmt.Sprintf("refs/heads/%s:refs/heads/%s/%s", branchName, remoteName, branchName))
 }
