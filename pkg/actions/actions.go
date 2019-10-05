@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/google/go-github/github"
+	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 )
 
@@ -65,7 +66,7 @@ func (r RealAction) GetActionData() (ActionData, error) {
 	}
 
 	token := os.Getenv("KREW_PLUGIN_RELEASE_TOKEN")
-	tokenUserEmail, tokenUserName, err := r.getUserInfo(token)
+	tokenUserName, tokenUserEmail, err := r.getUserInfo(token)
 	if err != nil {
 		return ActionData{}, err
 	}
@@ -132,5 +133,6 @@ func (r RealAction) getUserInfo(token string) (string, string, error) {
 		return "", "", err
 	}
 
+	logrus.Infof("username: %s, email: %s", user.GetName(), user.GetEmail())
 	return user.GetName(), user.GetEmail(), nil
 }
