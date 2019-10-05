@@ -6,13 +6,8 @@ import (
 	"github.com/google/go-github/github"
 )
 
-//GetReleaseInfo gets the release info
-func GetReleaseInfo(action ActionData) (*github.RepositoryRelease, error) {
-	payload, err := action.GetPayload()
-	if err != nil {
-		return nil, err
-	}
-
+//getReleaseInfo gets the release info
+func getReleaseInfo(payload []byte) (*github.RepositoryRelease, error) {
 	e, err := github.ParseWebHook("release", payload)
 	if err != nil {
 		return nil, err
@@ -28,7 +23,7 @@ func GetReleaseInfo(action ActionData) (*github.RepositoryRelease, error) {
 	}
 
 	if len(event.Release.Assets) == 0 {
-		return nil, fmt.Errorf("no assets found")
+		return nil, fmt.Errorf("no release assets found")
 	}
 
 	return event.Release, nil
