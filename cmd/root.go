@@ -17,6 +17,13 @@ import (
 	ugit "gopkg.in/src-d/go-git.v4"
 )
 
+const prBody = `hey krew-index team,
+
+I would like to open this PR to release new version of %s on behalf of %s.
+
+Thanks,
+[krew-plugin-release](https://github.com/rajatjindal/krew-plugin-release)`
+
 type actionInputs struct {
 	PluginName             string
 	Token                  string
@@ -26,12 +33,13 @@ type actionInputs struct {
 	upstreamKrewIndexRepo  string
 	localRemoteName        string
 	upstreamRemoteName     string
+	Actor                  string
 }
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "krew-plugin-release",
-	Short: "tool to make PR to krew-plugin-release",
+	Short: "github action to open PR for krew-index on release of new version of krew-plugin",
 	Run: func(cmd *cobra.Command, args []string) {
 		action := actions.RealAction{}
 
@@ -44,6 +52,7 @@ var rootCmd = &cobra.Command{
 			upstreamKrewIndexRepo:  fmt.Sprintf("https://github.com/%s/krew-index.git", action.GetInputForAction("upstream-krew-index-owner")),
 			localRemoteName:        "local",
 			upstreamRemoteName:     "upstream",
+			Actor:                  action.GetActor(),
 		}
 
 		logrus.Info("reading release payload")
@@ -105,7 +114,7 @@ func submitPR(inputs actionInputs, branchName string) error {
 		Title: stringp(fmt.Sprintf("release new version of %s", inputs.PluginName)),
 		Head:  stringp(fmt.Sprintf("%s:%s", inputs.LocalKrewIndexOwner, branchName)),
 		Base:  stringp("master"),
-		Body:  stringp("hey krew-index team, I would like to open this PR to release new version of modify-secret"),
+		Body:  stringp(fmt.Sprintf(prBody, inputs.PluginName, inputs.Actor)),
 	}
 
 	pr, _, err := client.PullRequests.Create(context.TODO(), inputs.UpstreamKrewIndexOwner, "krew-index", prr)
