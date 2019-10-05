@@ -8,13 +8,9 @@ inputs:
   upstream-krew-index-owner:
     description: 'the owner of upstream krew-index repo'  
     required: true
-    default: 'rajatjin'
-outputs:
-  time: # id of output
-    description: 'The time we greeted you'
 runs:
   using: 'docker'
-  image: 'rajatjindal/krew-plugin-release:v0.0.20'
+  image: 'docker://rajatjindal/krew-plugin-release:v0.0.22'
   args:
     - ${{ inputs.upstream-krew-index-owner }}
     - ${{ inputs.plugin-name }}
