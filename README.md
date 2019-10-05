@@ -20,7 +20,7 @@
 #### create a .krew.yaml file in your plugin git repository. 
 Below is the file created for [modify-secret](https://github.com/rajatjindal/kubectl-modify-secret). Note that this is a template file, and you can templatize your download uri. The action will process template, fetch the `.tar.gz` file from processed uri, calculate sha, writes the processed plugin manifest and then opens PR in the `krew-index` repo with these changes.
 
-Look at this [sample PR](https://github.com/rajatjin/krew-index/pulls/3) created using this action.
+Look at this [sample PR](https://github.com/kubernetes-sigs/krew-index/pull/262) created using this action, reviewed using bot from [@ahmetb](https://github.com/ahmetb) and merged using [@k8s-ci-robot](https://github.com/k8s-ci-robot)
 
 ```yaml
 apiVersion: krew.googlecontainertools.github.com/v1alpha2
@@ -81,7 +81,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1 
       - name: Open PR for new release of Krew Plugin
-        uses: rajatjindal/krew-plugin-release@v0.0.19
+        uses: rajatjindal/krew-plugin-release@v0.0.22
         with:
           plugin-name: 'your-plugin-name'
           upstream-krew-index-owner: 'kubernetes-sigs'
