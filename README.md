@@ -1,3 +1,5 @@
+## deprecated. use https://github.com/rajatjindal/krew-release-bot instead
+
 # krew-plugin-release
 
 `krew-plugin-release` is a [github action](https://github.com/features/actions) that opens a PR with upstream [krew-index](https://github.com/kubernetes-sigs/krew-index) on new release of your plugin.
